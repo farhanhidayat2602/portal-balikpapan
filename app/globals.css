@@ -1,0 +1,77 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── Animated gradient background ── */
+@keyframes fluid {
+  0%   { background-position: 0% 50%; }
+  50%  { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+@keyframes orb1 {
+  0%   { transform: translate(0, 0) scale(1); }
+  100% { transform: translate(30px, -40px) scale(1.1); }
+}
+
+.bg-animated {
+  background: linear-gradient(-45deg, #002244, #003D79, #0B5A9D, #003D79);
+  background-size: 400% 400%;
+  animation: fluid 15s ease infinite;
+}
+
+/* ── Glassmorphism card ── */
+.glass-card {
+  background: rgba(255, 255, 255, 0.08);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.glass-card:hover {
+  transform: translateY(-6px);
+  background: rgba(255, 255, 255, 0.14);
+  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+}
+
+.glass-card:active {
+  transform: translateY(-3px);
+}
+
+/* ── Card button ── */
+.card-btn {
+  background: rgba(255, 255, 255, 0.12);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  transition: background 0.15s;
+}
+
+.glass-card:hover .card-btn {
+  background: rgba(255, 255, 255, 0.22);
+}
+
+/* ── Ambient orbs ── */
+.orb-top {
+  position: absolute;
+  top: -15%;
+  left: -10%;
+  width: 55vw;
+  height: 55vh;
+  background: radial-gradient(circle, rgba(242, 169, 0, 0.12) 0%, transparent 70%);
+  filter: blur(50px);
+  animation: orb1 12s ease-in-out infinite alternate;
+  pointer-events: none;
+}
+
+.orb-bottom {
+  position: absolute;
+  bottom: -15%;
+  right: -10%;
+  width: 60vw;
+  height: 60vh;
+  background: radial-gradient(circle, rgba(11, 90, 157, 0.35) 0%, transparent 70%);
+  filter: blur(60px);
+  animation: orb1 14s ease-in-out infinite alternate-reverse;
+  pointer-events: none;
+}
