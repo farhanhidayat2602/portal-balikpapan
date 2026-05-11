@@ -2,76 +2,626 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Animated gradient background ── */
-@keyframes fluid {
-  0%   { background-position: 0% 50%; }
-  50%  { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
+/* ── Reset / Base ──────────────────────────────────────────────── */
+html, body {
+  margin: 0;
+  padding: 0;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  background: #001128;
+  color: #1a202c;
 }
 
-@keyframes orb1 {
-  0%   { transform: translate(0, 0) scale(1); }
-  100% { transform: translate(30px, -40px) scale(1.1); }
+.portal-root {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
-.bg-animated {
-  background: linear-gradient(-45deg, #002244, #003D79, #0B5A9D, #003D79);
-  background-size: 400% 400%;
-  animation: fluid 15s ease infinite;
+/* ── Navbar ────────────────────────────────────────────────────── */
+.portal-nav {
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(0, 29, 58, 0.95);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-/* ── Glassmorphism card ── */
-.glass-card {
-  background: rgba(255, 255, 255, 0.08);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.18);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.2);
-  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+.portal-nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 28px;
+  height: 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
 }
 
-.glass-card:hover {
-  transform: translateY(-6px);
-  background: rgba(255, 255, 255, 0.14);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.3);
+.portal-nav-brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-shrink: 0;
 }
 
-.glass-card:active {
-  transform: translateY(-3px);
+.portal-nav-brand-text {
+  display: flex;
+  flex-direction: column;
+  gap: 1px;
 }
 
-/* ── Card button ── */
-.card-btn {
-  background: rgba(255, 255, 255, 0.12);
-  border: 1px solid rgba(255, 255, 255, 0.2);
+.portal-nav-bank {
+  font-size: 10px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.45);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  line-height: 1;
+}
+
+.portal-nav-area {
+  font-size: 15px;
+  font-weight: 700;
+  color: #ffffff;
+  line-height: 1.2;
+}
+
+.portal-nav-clock {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+  text-align: right;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-height: 16px;
+}
+
+/* ── Hero ──────────────────────────────────────────────────────── */
+.portal-hero {
+  position: relative;
+  min-height: 380px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+
+.portal-hero-bg {
+  position: absolute;
+  inset: 0;
+  /* Night sky gradient */
+  background: linear-gradient(180deg,
+    #000a14 0%,
+    #001428 25%,
+    #001e3c 55%,
+    #002850 80%,
+    #003060 100%
+  );
+}
+
+/* Stars */
+.portal-hero-bg::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background-image:
+    radial-gradient(circle, rgba(255,255,255,0.8) 1px, transparent 1px),
+    radial-gradient(circle, rgba(255,255,255,0.5) 1px, transparent 1px),
+    radial-gradient(circle, rgba(255,255,255,0.6) 1px, transparent 1px),
+    radial-gradient(circle, rgba(200,220,255,0.5) 1px, transparent 1px);
+  background-size: 200px 200px, 130px 130px, 300px 300px, 170px 170px;
+  background-position: 40px 20px, 90px 50px, 20px 70px, 150px 30px;
+  opacity: 0.5;
+}
+
+/* City skyline silhouette */
+.portal-hero-bg::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 160px;
+  background:
+    /* Glow at base */
+    radial-gradient(ellipse 80% 40% at 50% 100%, rgba(0, 80, 160, 0.5) 0%, transparent 70%),
+    /* Building columns */
+    linear-gradient(0deg,
+      #001020 0px, #001020 40px,
+      transparent 40px
+    );
+  /* Simulate skyline with box shadows via clip-path not possible, use multiple gradients */
+  -webkit-mask-image: linear-gradient(to top, black 60%, transparent 100%);
+  mask-image: linear-gradient(to top, black 60%, transparent 100%);
+}
+
+/* City lights glow */
+.portal-hero::before {
+  content: '';
+  position: absolute;
+  bottom: 20px;
+  left: 0;
+  right: 0;
+  height: 120px;
+  background-image:
+    radial-gradient(circle, rgba(255, 200, 80, 0.5) 1px, transparent 2px),
+    radial-gradient(circle, rgba(200, 230, 255, 0.4) 1px, transparent 2px),
+    radial-gradient(circle, rgba(255, 180, 60, 0.4) 1px, transparent 2px),
+    radial-gradient(circle, rgba(180, 210, 255, 0.3) 1px, transparent 2px);
+  background-size: 45px 35px, 30px 25px, 60px 40px, 25px 20px;
+  background-position: 12px 10px, 22px 18px, 8px 25px, 35px 8px;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.7;
+}
+
+/* Bottom fade into cards section */
+.portal-hero::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 80px;
+  background: linear-gradient(to bottom, transparent, #f0f4f8);
+  z-index: 3;
+}
+
+.portal-hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+  padding: 80px 24px 100px;
+}
+
+.portal-hero-eyebrow {
+  font-size: 14px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.6);
+  margin: 0 0 8px;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+}
+
+.portal-hero-heading {
+  font-size: clamp(26px, 5vw, 46px);
+  font-weight: 800;
+  color: #ffffff;
+  margin: 0 0 14px;
+  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.6);
+  letter-spacing: -0.5px;
+  line-height: 1.15;
+}
+
+.portal-hero-sub {
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.5);
+  margin: 0;
+  letter-spacing: 0.04em;
+}
+
+/* ── Cards ─────────────────────────────────────────────────────── */
+.portal-cards {
+  background: #f0f4f8;
+  padding: 48px 24px 56px;
+  flex: 1;
+}
+
+.portal-cards-grid {
+  max-width: 880px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 24px;
+}
+
+.pcard {
+  background: #ffffff;
+  border-radius: 16px;
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  cursor: pointer;
+  text-decoration: none;
+  color: inherit;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
+  border: 1px solid #e2e8f0;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.pcard:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
+}
+
+.pcard-icon {
+  font-size: 38px;
+  line-height: 1;
+}
+
+.pcard-badge {
+  display: inline-block;
+  font-size: 10px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+  padding: 3px 10px;
+  border-radius: 100px;
+  width: fit-content;
+}
+
+.pcard-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #0f172a;
+  line-height: 1.3;
+}
+
+.pcard-desc {
+  font-size: 13px;
+  color: #64748b;
+  line-height: 1.65;
+  flex: 1;
+}
+
+.pcard-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.pcard-tag {
+  font-size: 11px;
+  font-weight: 500;
+  color: #64748b;
+  background: #f1f5f9;
+  border: 1px solid #e2e8f0;
+  padding: 3px 10px;
+  border-radius: 100px;
+}
+
+.pcard-btn {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 4px;
+  padding: 11px 16px;
+  border-radius: 10px;
+  background: #003D79;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 600;
   transition: background 0.15s;
 }
 
-.glass-card:hover .card-btn {
-  background: rgba(255, 255, 255, 0.22);
+.pcard:hover .pcard-btn {
+  background: #002b57;
 }
 
-/* ── Ambient orbs ── */
-.orb-top {
-  position: absolute;
-  top: -15%;
-  left: -10%;
-  width: 55vw;
-  height: 55vh;
-  background: radial-gradient(circle, rgba(242, 169, 0, 0.12) 0%, transparent 70%);
-  filter: blur(50px);
-  animation: orb1 12s ease-in-out infinite alternate;
-  pointer-events: none;
+/* ── Contact ───────────────────────────────────────────────────── */
+.portal-contact {
+  background: linear-gradient(135deg, #002244 0%, #003D79 100%);
+  padding: 36px 24px;
 }
 
-.orb-bottom {
-  position: absolute;
-  bottom: -15%;
-  right: -10%;
-  width: 60vw;
-  height: 60vh;
-  background: radial-gradient(circle, rgba(11, 90, 157, 0.35) 0%, transparent 70%);
-  filter: blur(60px);
-  animation: orb1 14s ease-in-out infinite alternate-reverse;
-  pointer-events: none;
+.portal-contact-inner {
+  max-width: 880px;
+  margin: 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  flex-wrap: wrap;
+}
+
+.portal-contact-icon {
+  font-size: 40px;
+  flex-shrink: 0;
+  filter: drop-shadow(0 2px 8px rgba(0,0,0,0.3));
+}
+
+.portal-contact-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 180px;
+}
+
+.portal-contact-label {
+  font-size: 11px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+  letter-spacing: 0.09em;
+}
+
+.portal-contact-name {
+  font-size: 17px;
+  font-weight: 700;
+  color: #ffffff;
+}
+
+.portal-contact-role {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.55);
+}
+
+.portal-wa-btn {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  background: #25d366;
+  color: #ffffff;
+  border: none;
+  border-radius: 10px;
+  padding: 13px 22px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+  flex-shrink: 0;
+  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.3);
+  font-family: inherit;
+}
+
+.portal-wa-btn:hover {
+  background: #1ebe57;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+}
+
+/* ── Footer ────────────────────────────────────────────────────── */
+.portal-footer {
+  background: #001128;
+  padding: 44px 24px;
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.portal-footer-inner {
+  max-width: 880px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 40px;
+  align-items: start;
+}
+
+.portal-footer-col {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.portal-footer-col-mid {
+  align-items: center;
+  text-align: center;
+  gap: 10px;
+}
+
+.portal-footer-col-icon {
+  font-size: 26px;
+  margin-bottom: 2px;
+}
+
+.portal-footer-col-title {
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.portal-footer-col-desc {
+  font-size: 12px;
+  color: rgba(255, 255, 255, 0.38);
+  line-height: 1.6;
+}
+
+.portal-footer-copy {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.65);
+}
+
+.portal-footer-unit {
+  font-size: 11px;
+  color: rgba(255, 255, 255, 0.35);
+  text-align: center;
+  line-height: 1.7;
+}
+
+/* ── Modal ─────────────────────────────────────────────────────── */
+.portal-modal-bg {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.65);
+  backdrop-filter: blur(5px);
+  -webkit-backdrop-filter: blur(5px);
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  animation: fadeIn 0.15s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.portal-modal {
+  background: #ffffff;
+  border-radius: 18px;
+  width: 100%;
+  max-width: 460px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
+  animation: slideUp 0.2s ease;
+}
+
+@keyframes slideUp {
+  from { transform: translateY(20px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+.portal-modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  padding: 24px 24px 18px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+.portal-modal-head h3 {
+  margin: 0 0 4px;
+  font-size: 17px;
+  font-weight: 700;
+  color: #0f172a;
+}
+
+.portal-modal-head p {
+  margin: 0;
+  font-size: 13px;
+  color: #64748b;
+}
+
+.portal-modal-x {
+  background: #f1f5f9;
+  border: none;
+  font-size: 14px;
+  color: #64748b;
+  cursor: pointer;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+  flex-shrink: 0;
+}
+
+.portal-modal-x:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.portal-modal-body {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.portal-modal-body label {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #374151;
+}
+
+.portal-modal-body input,
+.portal-modal-body textarea {
+  padding: 10px 14px;
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+  font-size: 14px;
+  color: #0f172a;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  font-family: inherit;
+  resize: vertical;
+  background: #fafafa;
+}
+
+.portal-modal-body input:focus,
+.portal-modal-body textarea:focus {
+  border-color: #003D79;
+  box-shadow: 0 0 0 3px rgba(0, 61, 121, 0.1);
+  background: #ffffff;
+}
+
+.portal-modal-foot {
+  display: flex;
+  gap: 10px;
+  padding: 16px 24px 24px;
+  justify-content: flex-end;
+}
+
+.portal-modal-cancel {
+  background: #f1f5f9;
+  border: none;
+  border-radius: 9px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #64748b;
+  cursor: pointer;
+  transition: background 0.15s;
+  font-family: inherit;
+}
+
+.portal-modal-cancel:hover {
+  background: #e2e8f0;
+}
+
+.portal-modal-send {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: #25d366;
+  border: none;
+  border-radius: 9px;
+  padding: 10px 20px;
+  font-size: 14px;
+  font-weight: 700;
+  color: #ffffff;
+  cursor: pointer;
+  transition: background 0.15s, transform 0.1s;
+  font-family: inherit;
+}
+
+.portal-modal-send:hover:not(:disabled) {
+  background: #1ebe57;
+  transform: translateY(-1px);
+}
+
+.portal-modal-send:disabled {
+  background: #cbd5e1;
+  color: #94a3b8;
+  cursor: not-allowed;
+}
+
+/* ── Responsive ────────────────────────────────────────────────── */
+@media (max-width: 640px) {
+  .portal-nav-clock {
+    display: none;
+  }
+
+  .portal-hero-content {
+    padding: 60px 20px 80px;
+  }
+
+  .portal-contact-inner {
+    flex-direction: column;
+    text-align: center;
+    align-items: center;
+  }
+
+  .portal-contact-info {
+    align-items: center;
+  }
+
+  .portal-footer-inner {
+    grid-template-columns: 1fr;
+    gap: 28px;
+  }
+
+  .portal-footer-col {
+    align-items: center;
+    text-align: center;
+  }
 }
