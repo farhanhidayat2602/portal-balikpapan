@@ -79,26 +79,14 @@ html, body {
   justify-content: center;
   overflow: hidden;
 
-  /* Layer 1 (top): smooth gradient fade to cards section */
-  /* Layer 2: dark blue tint for text readability */
-  /* Layer 3 (bottom): real photo */
   background:
     linear-gradient(
-      to bottom,
-      transparent  0%,
-      transparent  90%,
-      rgba(230, 235, 243, 0.5) 96%,
-      #f0f4f8      100%
-    ),
-    linear-gradient(
       160deg,
-      rgba(0, 12, 45,  0.82) 0%,
-      rgba(0, 28, 80,  0.65) 50%,
-      rgba(0, 18, 55,  0.50) 100%
+      rgba(0, 12, 45,  0.75) 0%,
+      rgba(0, 28, 80,  0.55) 50%,
+      rgba(0, 18, 55,  0.45) 100%
     ),
     url('/city-bg.jpg') center 30% / cover no-repeat;
-
-  /* Fallback if image hasn't been added yet */
   background-color: #001428;
 }
 
@@ -137,7 +125,7 @@ html, body {
 
 /* ── Cards ─────────────────────────────────────────────────────── */
 .portal-cards {
-  background: #f0f4f8;
+  background: #001428;
   padding: 48px 24px 56px;
   flex: 1;
 }
@@ -160,14 +148,14 @@ html, body {
   cursor: pointer;
   text-decoration: none;
   color: inherit;
-  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.07);
-  border: 1px solid #e2e8f0;
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.12);
   transition: transform 0.2s ease, box-shadow 0.2s ease;
 }
 
 .pcard:hover {
   transform: translateY(-5px);
-  box-shadow: 0 12px 36px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
 }
 
 .pcard-icon {
