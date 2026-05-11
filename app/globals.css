@@ -85,12 +85,10 @@ html, body {
   background:
     linear-gradient(
       to bottom,
-      transparent         0%,
-      transparent         38%,
-      rgba(218, 226, 238, 0.25) 58%,
-      rgba(230, 235, 243, 0.60) 72%,
-      rgba(238, 242, 247, 0.88) 85%,
-      #f0f4f8             100%
+      transparent  0%,
+      transparent  90%,
+      rgba(230, 235, 243, 0.5) 96%,
+      #f0f4f8      100%
     ),
     linear-gradient(
       160deg,
