@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react'
 
 const MERCHANT_URL  = process.env.NEXT_PUBLIC_MERCHANT_URL  || 'https://portal-akuisisi-merchant.vercel.app'
-const PELAPORAN_URL = process.env.NEXT_PUBLIC_PELAPORAN_URL || '#'
+const PELAPORAN_URL = process.env.NEXT_PUBLIC_PELAPORAN_URL || 'https://pelaporan-akuisisi.vercel.app/login'
 const WA_NUMBER     = '628988887761'
 
 const portals = [
