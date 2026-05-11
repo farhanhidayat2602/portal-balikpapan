@@ -76,11 +76,9 @@ export default function Home() {
       <nav className="portal-nav">
         <div className="portal-nav-inner">
           <div className="portal-nav-brand">
-            <MandiriIcon />
-            <div className="portal-nav-brand-text">
-              <span className="portal-nav-bank">Bank Mandiri</span>
-              <span className="portal-nav-area">Area Balikpapan</span>
-            </div>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/mandiri-logo.png" height={36} alt="Bank Mandiri" className="portal-nav-logo" />
+            <span className="portal-nav-area">Area Balikpapan</span>
           </div>
           <div className="portal-nav-clock" suppressHydrationWarning>{clock}</div>
         </div>
@@ -88,7 +86,6 @@ export default function Home() {
 
       {/* ── Hero ─────────────────────────────────────────────── */}
       <section className="portal-hero">
-        <div className="portal-hero-bg" />
         <div className="portal-hero-content">
           <p className="portal-hero-eyebrow">Selamat Datang di</p>
           <h1 className="portal-hero-heading">Portal Area Balikpapan</h1>
@@ -148,7 +145,8 @@ export default function Home() {
             <div className="portal-footer-col-desc">Data terlindungi dengan enkripsi dan autentikasi berlapis.</div>
           </div>
           <div className="portal-footer-col portal-footer-col-mid">
-            <MandiriIcon size={36} />
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/mandiri-logo.png" height={34} alt="Bank Mandiri" className="portal-footer-logo" />
             <div className="portal-footer-copy">© 2026 Bank Mandiri</div>
             <div className="portal-footer-unit">Area Transaction and Funding<br />Area Balikpapan</div>
           </div>
@@ -211,18 +209,6 @@ export default function Home() {
         </div>
       )}
     </div>
-  )
-}
-
-function MandiriIcon({ size = 42 }: { size?: number }) {
-  return (
-    <svg width={size} height={size} viewBox="0 0 42 42" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <rect width="42" height="42" rx="7" fill="#003D79" />
-      <path
-        d="M7 33V9H15L21 22L27 9H35V33H30V18L23 30H19L12 18V33Z"
-        fill="#F2A900"
-      />
-    </svg>
   )
 }
 
