@@ -273,18 +273,17 @@ html, body {
 .portal-wa-btn {
   display: flex;
   align-items: center;
-  gap: 9px;
+  justify-content: center;
   background: #25d366;
   color: #ffffff;
   border: none;
-  border-radius: 10px;
-  padding: 13px 22px;
-  font-size: 14px;
-  font-weight: 700;
+  border-radius: 50%;
+  width: 52px;
+  height: 52px;
   cursor: pointer;
   transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
   flex-shrink: 0;
-  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.3);
+  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.35);
   font-family: inherit;
 }
 
