@@ -76,6 +76,8 @@ export default function Home() {
       <nav className="portal-nav">
         <div className="portal-nav-inner">
           <div className="portal-nav-brand">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-ab.png" height={36} alt="Area Balikpapan" className="portal-nav-logo" />
             <span className="portal-nav-area">Area Balikpapan</span>
           </div>
           <div className="portal-nav-clock" suppressHydrationWarning>{clock}</div>
@@ -125,7 +127,6 @@ export default function Home() {
           <div className="portal-contact-info">
             <span className="portal-contact-label">Butuh bantuan?</span>
             <strong className="portal-contact-name">M. Farhan Hidayat</strong>
-            <span className="portal-contact-role">Officer Development Program Batch 318</span>
           </div>
           <button className="portal-wa-btn" onClick={() => setShowModal(true)}>
             <WAIcon />
@@ -142,6 +143,8 @@ export default function Home() {
             <div className="portal-footer-col-desc">Data terlindungi dengan enkripsi dan autentikasi berlapis.</div>
           </div>
           <div className="portal-footer-col portal-footer-col-mid">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img src="/logo-ab.png" height={40} alt="Area Balikpapan" className="portal-footer-logo" />
             <div className="portal-footer-copy">© 2026 Portal Area Balikpapan</div>
             <div className="portal-footer-unit">Area Transaction and Funding<br />Area Balikpapan</div>
           </div>
