@@ -76,8 +76,6 @@ export default function Home() {
       <nav className="portal-nav">
         <div className="portal-nav-inner">
           <div className="portal-nav-brand">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/mandiri-logo.png" height={36} alt="Bank Mandiri" className="portal-nav-logo" />
             <span className="portal-nav-area">Area Balikpapan</span>
           </div>
           <div className="portal-nav-clock" suppressHydrationWarning>{clock}</div>
@@ -89,7 +87,7 @@ export default function Home() {
         <div className="portal-hero-content">
           <p className="portal-hero-eyebrow">Selamat Datang di</p>
           <h1 className="portal-hero-heading">Portal Area Balikpapan</h1>
-          <p className="portal-hero-sub">Bank Mandiri · Pilih aplikasi yang ingin diakses</p>
+          <p className="portal-hero-sub">Pilih aplikasi yang ingin diakses</p>
         </div>
       </section>
 
@@ -144,9 +142,7 @@ export default function Home() {
             <div className="portal-footer-col-desc">Data terlindungi dengan enkripsi dan autentikasi berlapis.</div>
           </div>
           <div className="portal-footer-col portal-footer-col-mid">
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img src="/mandiri-logo.png" height={34} alt="Bank Mandiri" className="portal-footer-logo" />
-            <div className="portal-footer-copy">© 2026 Bank Mandiri</div>
+            <div className="portal-footer-copy">© 2026 Portal Area Balikpapan</div>
             <div className="portal-footer-unit">Area Transaction and Funding<br />Area Balikpapan</div>
           </div>
           <div className="portal-footer-col">
