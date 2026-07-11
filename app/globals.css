@@ -930,9 +930,15 @@ textarea:focus-visible {
   .modal__foot { flex-direction: column-reverse; }
 }
 
-/* HP sangat sempit (<=360px): tile fitur bertumpuk agar teks tidak terpotong. */
-@media (max-width: 360px) {
+/* HP (<=480px): tile fitur bertumpuk satu kolom.
+   Deskripsinya kini menyebut isi nyata ("Pebisnis · Payroll · TBR · CC"), dan
+   di dua kolom pada layar 375px lebar teks tinggal ~100px — kalimatnya pecah
+   jadi 3-4 baris dan tile-nya jadi tinggi tak beraturan. Satu kolom lebih
+   terbaca, dan ikon jadi sejajar rapi ke bawah. */
+@media (max-width: 480px) {
   .feats { grid-template-columns: 1fr; }
+  .feat { padding: 12px 14px; }
+  .feat__desc { font-size: 11.5px; }
 }
 
 /* ── Hormati preferensi gerak minimal ────────────────────────────────────── */

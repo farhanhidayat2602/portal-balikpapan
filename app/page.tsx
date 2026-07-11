@@ -7,14 +7,19 @@ const PELAPORAN_URL =
   process.env.NEXT_PUBLIC_PELAPORAN_URL || 'https://pelaporanakuisisiareabalikpapan.web.id/login'
 const WA_NUMBER = '628988887761'
 
-// Empat kemampuan utama aplikasi. Dulu ini cuma chip kecil di kaki kartu;
-// sekarang jadi grid yang MENGISI panel — supaya satu-satunya aplikasi tidak
-// tampak mengambang kesepian di tengah layar.
+// Enam pilar aplikasi — dipetakan satu-satu dari grup menu yang BENAR-BENAR ada
+// di dalam Pelaporan Akuisisi, bukan ringkasan yang enak didengar. Cakupannya
+// jauh lebih luas dari sekadar GMM/CIF: ada follow up leads (6 jenis), booking
+// kredit (KSM/KPR/KUR-KUM), prioritas, sampai Superblock & Telkom Divre.
+// Dulu ini cuma chip kecil di kaki kartu; sekarang jadi grid yang MENGISI panel
+// supaya satu-satunya aplikasi tidak tampak mengambang kesepian di tengah layar.
 const FEATURES = [
-  { icon: IconDashboard, title: 'Dashboard', desc: 'Performa cabang sekilas' },
-  { icon: IconTrend, title: 'Tren CIF', desc: 'Pergerakan akuisisi' },
-  { icon: IconBranch, title: 'Per Cabang', desc: 'Rekap tiap cabang' },
-  { icon: IconReport, title: 'Laporan Harian', desc: 'GMM & CIF harian' },
+  { icon: IconReport,    title: 'Laporan Harian',    desc: 'GMM & CIF per cabang' },
+  { icon: IconChecklist, title: 'Follow Up Leads',   desc: 'Pebisnis · Payroll · TBR · CC' },
+  { icon: IconCard,      title: 'Booking Kredit',    desc: 'KSM · KPR · KUR/KUM' },
+  { icon: IconStar,      title: 'Akuisisi Prioritas', desc: 'Monitoring nasabah prioritas' },
+  { icon: IconBuilding,  title: 'Superblock & Telkom', desc: 'Produktivitas individu' },
+  { icon: IconUsers,     title: 'Administrasi',      desc: 'Reminder WA · pegawai · user' },
 ]
 
 export default function Home() {
@@ -136,8 +141,9 @@ export default function Home() {
 
               <h2 className="panel__title">Pelaporan Akuisisi</h2>
               <p className="panel__desc">
-                Laporan harian GMM &amp; CIF, dashboard performa cabang, tren akuisisi,
-                dan rekap area — dalam satu tempat.
+                Pusat pelaporan akuisisi Area Balikpapan — dari laporan harian GMM &amp; CIF,
+                follow up leads funding &amp; transaction, hingga monitoring booking kredit
+                dan nasabah prioritas.
               </p>
 
               <a href={PELAPORAN_URL} className="cta">
@@ -287,33 +293,58 @@ const S = {
   strokeLinejoin: 'round' as const,
 }
 
-function IconDashboard() {
+/* Follow Up Leads — papan periksa: tiap lead dihubungi lalu dicatat hasilnya. */
+function IconChecklist() {
   return (
     <svg viewBox="0 0 24 24" width="20" height="20" {...S}>
-      <rect x="3" y="3" width="7" height="9" rx="1.5" />
-      <rect x="14" y="3" width="7" height="5" rx="1.5" />
-      <rect x="14" y="12" width="7" height="9" rx="1.5" />
-      <rect x="3" y="16" width="7" height="5" rx="1.5" />
+      <path d="M9 4H7a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2h-2" />
+      <rect x="9" y="2.5" width="6" height="3.5" rx="1" />
+      <path d="M8.5 12.5l1.8 1.8 3.7-3.7" />
+      <path d="M8.5 17.5h7" />
     </svg>
   )
 }
 
-function IconTrend() {
+/* Booking Kredit — KSM, KPR, KUR/KUM. */
+function IconCard() {
   return (
     <svg viewBox="0 0 24 24" width="20" height="20" {...S}>
-      <path d="M3 17l5.5-5.5 3.5 3.5L21 6" />
-      <path d="M15 6h6v6" />
+      <rect x="2.5" y="5" width="19" height="14" rx="2.5" />
+      <path d="M2.5 10h19" />
+      <path d="M6 14.5h3" />
     </svg>
   )
 }
 
-function IconBranch() {
+/* Akuisisi Prioritas. */
+function IconStar() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" {...S}>
+      <path d="M12 3.5l2.6 5.3 5.9.86-4.25 4.14 1 5.85L12 16.9l-5.25 2.75 1-5.85L3.5 9.66l5.9-.86z" />
+    </svg>
+  )
+}
+
+/* Superblock & Telkom Divre — produktivitas individu per lokasi. */
+function IconBuilding() {
   return (
     <svg viewBox="0 0 24 24" width="20" height="20" {...S}>
       <path d="M3 21h18" />
-      <path d="M5 21V7l7-4 7 4v14" />
-      <path d="M10 21v-5h4v5" />
-      <path d="M9 10h.01M15 10h.01" />
+      <path d="M5 21V6a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v15" />
+      <path d="M13 21V10h5a1 1 0 0 1 1 1v10" />
+      <path d="M8 9h2M8 13h2M16 14h.01M16 17.5h.01" />
+    </svg>
+  )
+}
+
+/* Administrasi — reminder WA, kelola pegawai, manajemen user. */
+function IconUsers() {
+  return (
+    <svg viewBox="0 0 24 24" width="20" height="20" {...S}>
+      <circle cx="9" cy="8" r="3.2" />
+      <path d="M3.5 19.5a5.5 5.5 0 0 1 11 0" />
+      <path d="M16 5.6a3.2 3.2 0 0 1 0 5.9" />
+      <path d="M17.6 14.4a5.5 5.5 0 0 1 2.9 5.1" />
     </svg>
   )
 }
