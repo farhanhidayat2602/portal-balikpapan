@@ -433,6 +433,12 @@ body {
   flex: 1;
 }
 
+/* Kalau jumlah tile GANJIL, yang terakhir akan sendirian di baris penutup dan
+   terbaca seperti kesalahan. Aturan ini membuatnya melebar dua kolom — dan
+   hanya aktif saat jumlahnya memang ganjil (last-child yang posisinya ganjil),
+   jadi tidak perlu disetel ulang tiap kali daftar fitur berubah. */
+.feat:last-child:nth-child(odd) { grid-column: 1 / -1; }
+
 .feat {
   display: flex;
   align-items: flex-start;

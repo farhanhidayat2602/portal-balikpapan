@@ -7,19 +7,23 @@ const PELAPORAN_URL =
   process.env.NEXT_PUBLIC_PELAPORAN_URL || 'https://pelaporanakuisisiareabalikpapan.web.id/login'
 const WA_NUMBER = '628988887761'
 
-// Enam pilar aplikasi — dipetakan satu-satu dari grup menu yang BENAR-BENAR ada
-// di dalam Pelaporan Akuisisi, bukan ringkasan yang enak didengar. Cakupannya
-// jauh lebih luas dari sekadar GMM/CIF: ada follow up leads (6 jenis), booking
-// kredit (KSM/KPR/KUR-KUM), prioritas, sampai Superblock & Telkom Divre.
+// Pilar aplikasi — dipetakan satu-satu dari grup menu yang BENAR-BENAR ada di
+// dalam Pelaporan Akuisisi, bukan ringkasan yang enak didengar. Cakupannya jauh
+// lebih luas dari sekadar GMM/CIF: ada follow up leads (6 jenis), booking kredit
+// (KSM/KPR/KUR-KUM), sampai akuisisi prioritas.
 // Dulu ini cuma chip kecil di kaki kartu; sekarang jadi grid yang MENGISI panel
 // supaya satu-satunya aplikasi tidak tampak mengambang kesepian di tengah layar.
+//
+// CSS .feat:last-child:nth-child(odd) membuat tile terakhir melebar dua kolom
+// bila jumlahnya ganjil — jadi tidak akan pernah ada tile yatim di baris
+// terakhir, berapa pun panjang daftar ini nanti.
 const FEATURES = [
-  { icon: IconReport,    title: 'Laporan Harian',    desc: 'GMM & CIF per cabang' },
-  { icon: IconChecklist, title: 'Follow Up Leads',   desc: 'Pebisnis · Payroll · TBR · CC' },
-  { icon: IconCard,      title: 'Booking Kredit',    desc: 'KSM · KPR · KUR/KUM' },
-  { icon: IconStar,      title: 'Akuisisi Prioritas', desc: 'Monitoring nasabah prioritas' },
-  { icon: IconBuilding,  title: 'Superblock & Telkom', desc: 'Produktivitas individu' },
-  { icon: IconUsers,     title: 'Administrasi',      desc: 'Reminder WA · pegawai · user' },
+  { icon: IconReport,     title: 'Laporan Harian',     desc: 'GMM & CIF per cabang' },
+  { icon: IconChecklist,  title: 'Follow Up Leads',    desc: 'Pebisnis · Payroll · TBR · CC' },
+  { icon: IconCard,       title: 'Booking Kredit',     desc: 'KSM · KPR · KUR/KUM' },
+  { icon: IconStar,       title: 'Akuisisi Prioritas', desc: 'Monitoring nasabah prioritas' },
+  { icon: IconCalculator, title: 'Kalkulator Kredit',  desc: 'Angsuran · DBR · limit maksimal' },
+  { icon: IconUsers,      title: 'Administrasi',       desc: 'Reminder WA · pegawai · user' },
 ]
 
 export default function Home() {
@@ -325,14 +329,13 @@ function IconStar() {
   )
 }
 
-/* Superblock & Telkom Divre — produktivitas individu per lokasi. */
-function IconBuilding() {
+/* Kalkulator Kredit — simulasi angsuran, kelayakan DBR, limit maksimal. */
+function IconCalculator() {
   return (
     <svg viewBox="0 0 24 24" width="20" height="20" {...S}>
-      <path d="M3 21h18" />
-      <path d="M5 21V6a1 1 0 0 1 1-1h6a1 1 0 0 1 1 1v15" />
-      <path d="M13 21V10h5a1 1 0 0 1 1 1v10" />
-      <path d="M8 9h2M8 13h2M16 14h.01M16 17.5h.01" />
+      <rect x="4" y="2.5" width="16" height="19" rx="2.5" />
+      <rect x="7.5" y="6" width="9" height="3.5" rx="1" />
+      <path d="M8 13h.01M12 13h.01M16 13h.01M8 17h.01M12 17h.01M16 17h.01" />
     </svg>
   )
 }
