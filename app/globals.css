@@ -2,553 +2,950 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── Reset / Base ──────────────────────────────────────────────── */
+/* ═══════════════════════════════════════════════════════════════════════════
+   PORTAL AREA BALIKPAPAN — "Command Center"
+   Dark sinematik. Foto skyline jadi panggung, panel kaca jadi titik fokus.
+
+   Prinsip:
+   - SATU titik fokus: panel Pelaporan Akuisisi. Semua hierarki mengarah ke sana.
+   - Skala spasi kelipatan 4px. Radius & shadow diambil dari token, bukan angka
+     liar yang ditebak per komponen.
+   - Animasi HANYA transform & opacity → dijalankan compositor, tidak memicu
+     reflow/repaint yang berat.
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Latar — gradasi gelap, bukan warna datar */
+  --bg:          #050A14;
+  --bg-soft:     #0A1220;
+  --bg-lift:     #0E1828;
+
+  /* Biru korporat, dipertahankan dari identitas lama (#1a56db) */
+  --brand-300:   #7FB0FF;
+  --brand-400:   #4C8DFF;
+  --brand-500:   #2563EB;
+  --brand-600:   #1A56DB;
+  --brand-700:   #123FA6;
+
+  /* Teks — kontras dinaikkan. Yang lama rgba(255,255,255,.5) di atas foto ada
+     jauh di bawah ambang WCAG; itulah yang bikin subjudul terasa pudar. */
+  --text:        #F3F7FF;   /* ~19:1 di atas --bg */
+  --text-dim:    #B7C6DE;   /* ~10:1 — aman untuk teks kecil */
+  --text-mute:   #8194B0;   /*  ~6:1 — hanya untuk label non-esensial */
+
+  /* Garis & kaca */
+  --line:        rgba(255, 255, 255, 0.09);
+  --line-strong: rgba(255, 255, 255, 0.16);
+  --glass:       rgba(255, 255, 255, 0.045);
+  --glass-hi:    rgba(255, 255, 255, 0.075);
+
+  /* Radius */
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 20px;
+  --r-xl: 28px;
+  --r-pill: 999px;
+
+  /* Shadow berlapis — satu lapis saja selalu terlihat murah */
+  --sh-1: 0 1px 2px rgba(0, 0, 0, 0.32);
+  --sh-2: 0 4px 12px -2px rgba(0, 0, 0, 0.36), 0 2px 6px -2px rgba(0, 0, 0, 0.28);
+  --sh-3: 0 32px 64px -20px rgba(0, 0, 0, 0.72), 0 12px 28px -12px rgba(0, 0, 0, 0.5);
+  --sh-cta: 0 10px 28px -8px rgba(37, 99, 235, 0.62), 0 2px 8px -2px rgba(0, 0, 0, 0.4);
+
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+* { box-sizing: border-box; }
+
 html, body {
   margin: 0;
   padding: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-  background: #001128;
-  color: #1a202c;
+  background: var(--bg);
 }
 
-.portal-root {
+body {
+  font-family: var(--font-body), ui-sans-serif, system-ui, sans-serif;
+  color: var(--text);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+  line-height: 1.6;
+}
+
+.root {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  /* Cahaya biru sangat halus dari atas — menyatukan hero dengan sisa halaman
+     supaya tidak terasa seperti dua blok yang sekadar ditempel. */
+  background:
+    radial-gradient(1200px 600px at 50% -10%, rgba(37, 99, 235, 0.14), transparent 70%),
+    linear-gradient(180deg, var(--bg) 0%, var(--bg-soft) 55%, var(--bg) 100%);
 }
 
-/* ── Navbar ────────────────────────────────────────────────────── */
-.portal-nav {
-  position: sticky;
+/* ── Animasi masuk ───────────────────────────────────────────────────────── */
+
+@keyframes rise {
+  from { opacity: 0; transform: translate3d(0, 18px, 0); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0); }
+}
+
+/* Ken Burns: foto merayap pelan supaya hero terasa hidup, bukan gambar mati. */
+@keyframes kenburns {
+  from { transform: scale(1.12); }
+  to   { transform: scale(1); }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.45; transform: scale(0.82); }
+}
+
+.reveal { animation: rise 0.8s var(--ease) both; }
+.reveal--1 { animation-delay: 0.09s; }
+.reveal--2 { animation-delay: 0.18s; }
+.reveal--3 { animation-delay: 0.28s; }
+
+/* ── Navbar ──────────────────────────────────────────────────────────────── */
+
+.nav {
+  position: fixed;
   top: 0;
-  z-index: 100;
-  background: rgba(0, 22, 55, 0.96);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  left: 0;
+  right: 0;
+  z-index: 50;
+  border-bottom: 1px solid transparent;
+  transition: background 0.35s var(--ease), border-color 0.35s var(--ease),
+              backdrop-filter 0.35s var(--ease);
 }
 
-.portal-nav-inner {
-  max-width: 1200px;
+/* Mulai transparan di atas foto, mengeras jadi kaca setelah digulir. */
+.nav--solid {
+  background: rgba(5, 10, 20, 0.72);
+  backdrop-filter: saturate(160%) blur(14px);
+  -webkit-backdrop-filter: saturate(160%) blur(14px);
+  border-bottom-color: var(--line);
+}
+
+.nav__inner {
+  max-width: 1160px;
   margin: 0 auto;
-  padding: 0 28px;
-  height: 64px;
+  padding: 14px 24px;
   display: flex;
   align-items: center;
   justify-content: space-between;
   gap: 16px;
 }
 
-.portal-nav-brand {
+.nav__brand {
   display: flex;
   align-items: center;
-  gap: 14px;
-  flex-shrink: 0;
+  gap: 12px;
+  min-width: 0;
 }
 
-.portal-nav-logo {
-  height: 36px;
+.nav__logo {
+  height: 40px;
   width: auto;
-  border-radius: 5px;
-  display: block;
+  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.45));
 }
 
-.portal-nav-area {
+.nav__area {
+  font-family: var(--font-display), sans-serif;
   font-size: 15px;
   font-weight: 700;
-  color: #ffffff;
-  letter-spacing: -0.2px;
-}
-
-.portal-nav-clock {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.55);
-  text-align: right;
+  letter-spacing: -0.01em;
+  color: var(--text);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  min-height: 16px;
 }
 
-/* ── Hero ──────────────────────────────────────────────────────── */
-.portal-hero {
+.nav__clock {
+  font-size: 12.5px;
+  font-weight: 500;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;   /* detik berganti tanpa teks bergoyang */
+  white-space: nowrap;
+}
+
+/* ── Hero ────────────────────────────────────────────────────────────────── */
+
+.hero {
   position: relative;
-  min-height: 420px;
+  isolation: isolate;
+  min-height: 78vh;
   display: flex;
   align-items: center;
   justify-content: center;
+  padding: 128px 24px 168px;   /* ruang bawah dipakai panel untuk naik */
   overflow: hidden;
+}
 
+.hero__media {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+}
+
+.hero__img {
+  object-fit: cover;
+  object-position: center 32%;
+  animation: kenburns 24s var(--ease) both;
+}
+
+/* Scrim berlapis: pekat di tepi atas & bawah supaya navbar dan panel punya
+   pijakan, lebih terbuka di tengah supaya skyline tetap terbaca. */
+.hero__scrim {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
   background:
-    linear-gradient(
-      160deg,
-      rgba(0, 12, 45,  0.75) 0%,
-      rgba(0, 28, 80,  0.55) 50%,
-      rgba(0, 18, 55,  0.45) 100%
-    ),
-    url('/city-bg.png') center 30% / cover no-repeat;
-  background-color: #001428;
+    linear-gradient(180deg,
+      rgba(5, 10, 20, 0.88) 0%,
+      rgba(5, 10, 20, 0.42) 32%,
+      rgba(5, 10, 20, 0.55) 62%,
+      var(--bg) 100%),
+    linear-gradient(90deg,
+      rgba(5, 10, 20, 0.5) 0%,
+      transparent 35%,
+      transparent 65%,
+      rgba(5, 10, 20, 0.5) 100%);
 }
 
-.portal-hero-content {
+/* Semburat biru di belakang judul — memisahkan teks dari gedung tanpa perlu
+   kotak gelap yang kaku. */
+.hero__glow {
+  position: absolute;
+  z-index: -1;
+  top: 30%;
+  left: 50%;
+  width: min(760px, 92vw);
+  height: 320px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, rgba(37, 99, 235, 0.3), transparent 78%);
+  filter: blur(28px);
+  pointer-events: none;
+}
+
+.hero__inner {
   position: relative;
-  z-index: 2;
   text-align: center;
-  padding: 80px 24px 110px;
+  max-width: 760px;
 }
 
-.portal-hero-eyebrow {
-  font-size: 13px;
+.hero__eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 16px;
+  padding: 6px 14px 6px 10px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-pill);
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+  font-size: 11.5px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.6);
-  margin: 0 0 10px;
-  letter-spacing: 0.12em;
+  letter-spacing: 0.14em;
   text-transform: uppercase;
+  color: var(--text-dim);
 }
 
-.portal-hero-heading {
-  font-size: clamp(26px, 5vw, 46px);
+.hero__pulse {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--brand-400);
+  box-shadow: 0 0 12px 2px rgba(76, 141, 255, 0.85);
+  animation: pulse 2.4s ease-in-out infinite;
+}
+
+.hero__title {
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(34px, 6.2vw, 68px);
   font-weight: 800;
-  color: #ffffff;
-  margin: 0 0 14px;
-  text-shadow: 0 4px 28px rgba(0, 0, 0, 0.55);
-  letter-spacing: -0.5px;
-  line-height: 1.15;
+  line-height: 1.06;
+  letter-spacing: -0.035em;
+  margin: 0 0 18px;
+  color: var(--text);
+  text-shadow: 0 6px 40px rgba(0, 0, 0, 0.6);
 }
 
-.portal-hero-sub {
-  font-size: 14px;
-  color: rgba(255, 255, 255, 0.5);
+/* Gradient hanya pada satu kata → mata langsung tahu ini judulnya. */
+.hero__accent {
+  background: linear-gradient(135deg, #9FC4FF 0%, var(--brand-400) 45%, #A8D0FF 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.hero__sub {
   margin: 0;
-  letter-spacing: 0.04em;
+  font-size: clamp(15px, 1.6vw, 18px);
+  font-weight: 400;
+  line-height: 1.65;
+  /* Naik dari rgba(255,255,255,.5) → #D6E2F4. Di atas foto, opasitas rendah
+     bukan cuma "estetik pudar" — itu gagal kontras. */
+  color: #D6E2F4;
+  text-shadow: 0 2px 16px rgba(0, 0, 0, 0.7);
 }
 
-/* ── Cards ─────────────────────────────────────────────────────── */
-.portal-cards {
-  background: #001428;
-  padding: 48px 24px 56px;
+/* ── Panel aplikasi ──────────────────────────────────────────────────────── */
+
+.stage {
+  position: relative;
+  z-index: 3;
+  margin-top: -112px;          /* naik menembus hero */
+  padding: 0 24px 96px;
+}
+
+.panel {
+  max-width: 1060px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 40px;
+  padding: 40px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-xl);
+  background:
+    linear-gradient(150deg, var(--glass-hi) 0%, var(--glass) 46%, rgba(255, 255, 255, 0.02) 100%),
+    rgba(10, 18, 32, 0.72);
+  backdrop-filter: saturate(150%) blur(20px);
+  -webkit-backdrop-filter: saturate(150%) blur(20px);
+  box-shadow: var(--sh-3);
+  transition: transform 0.5s var(--ease), box-shadow 0.5s var(--ease),
+              border-color 0.5s var(--ease);
+}
+
+.panel:hover {
+  transform: translateY(-3px);
+  border-color: rgba(76, 141, 255, 0.34);
+  box-shadow: var(--sh-3), 0 0 72px -28px rgba(37, 99, 235, 0.55);
+}
+
+.panel__left {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 5px 12px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(76, 141, 255, 0.34);
+  border-radius: var(--r-pill);
+  background: rgba(37, 99, 235, 0.16);
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--brand-300);
+}
+
+.badge__dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--brand-400);
+  box-shadow: 0 0 8px rgba(76, 141, 255, 0.9);
+}
+
+.panel__title {
+  font-family: var(--font-display), sans-serif;
+  font-size: clamp(26px, 3vw, 36px);
+  font-weight: 700;
+  line-height: 1.14;
+  letter-spacing: -0.028em;
+  margin: 0 0 14px;
+  color: var(--text);
+}
+
+.panel__desc {
+  margin: 0 0 32px;
+  font-size: 15px;
+  line-height: 1.72;
+  color: var(--text-dim);
+  max-width: 42ch;              /* panjang baris yang nyaman dibaca */
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 15px 28px;
+  border-radius: var(--r-pill);
+  background: linear-gradient(135deg, var(--brand-500) 0%, var(--brand-700) 100%);
+  color: #fff;
+  font-family: var(--font-display), sans-serif;
+  font-size: 15px;
+  font-weight: 600;
+  letter-spacing: -0.005em;
+  text-decoration: none;
+  box-shadow: var(--sh-cta);
+  transition: transform 0.28s var(--ease), box-shadow 0.28s var(--ease),
+              filter 0.28s var(--ease);
+}
+
+.cta:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.09);
+  box-shadow: 0 16px 40px -10px rgba(37, 99, 235, 0.75), 0 3px 10px -2px rgba(0, 0, 0, 0.45);
+}
+
+.cta:active { transform: translateY(0); }
+
+.cta svg { transition: transform 0.28s var(--ease); }
+.cta:hover svg { transform: translateX(4px); }
+
+.panel__meta {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  margin: 18px 0 0;
+  font-size: 12.5px;
+  color: var(--text-mute);
+}
+
+/* ── Grid fitur (mengisi sisi kanan panel) ───────────────────────────────── */
+
+.panel__right {
+  display: flex;
+  flex-direction: column;
+  border-left: 1px solid var(--line);   /* pemisah halus, bukan border tebal */
+  padding-left: 40px;
+}
+
+.panel__label {
+  margin: 0 0 16px;
+  font-size: 10.5px;
+  font-weight: 700;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--text-mute);
+}
+
+.feats {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 10px;
   flex: 1;
 }
 
-.portal-cards-grid {
-  max-width: 880px;
-  margin: 0 auto;
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 24px;
+.feat {
+  display: flex;
+  align-items: flex-start;
+  gap: 11px;
+  padding: 14px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-md);
+  background: rgba(255, 255, 255, 0.028);
+  transition: border-color 0.28s var(--ease), background 0.28s var(--ease),
+              transform 0.28s var(--ease);
 }
 
-.pcard {
-  background: #ffffff;
-  border-radius: 16px;
-  padding: 28px;
+.feat:hover {
+  transform: translateY(-2px);
+  border-color: rgba(76, 141, 255, 0.34);
+  background: rgba(37, 99, 235, 0.1);
+}
+
+.feat__icon {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-sm);
+  background: linear-gradient(140deg, rgba(76, 141, 255, 0.22), rgba(37, 99, 235, 0.1));
+  border: 1px solid rgba(76, 141, 255, 0.24);
+  color: var(--brand-300);
+}
+
+.feat__text {
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  cursor: pointer;
-  text-decoration: none;
-  color: inherit;
-  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.35);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  gap: 2px;
+  min-width: 0;
 }
 
-.pcard:hover {
-  transform: translateY(-5px);
-  box-shadow: 0 14px 40px rgba(0, 0, 0, 0.5);
-}
-
-.pcard-icon {
-  font-size: 38px;
-  line-height: 1;
-}
-
-.pcard-badge {
-  display: inline-block;
-  font-size: 10px;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
-  padding: 3px 10px;
-  border-radius: 100px;
-  width: fit-content;
-}
-
-.pcard-title {
-  font-size: 18px;
-  font-weight: 700;
-  color: #0f172a;
+.feat__title {
+  font-size: 13.5px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--text);
   line-height: 1.3;
 }
 
-.pcard-desc {
-  font-size: 13px;
-  color: #64748b;
-  line-height: 1.65;
-  flex: 1;
+.feat__desc {
+  font-size: 11.5px;
+  line-height: 1.45;
+  color: var(--text-mute);
 }
 
-.pcard-tags {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-}
+/* ── Bantuan ─────────────────────────────────────────────────────────────── */
 
-.pcard-tag {
-  font-size: 11px;
-  font-weight: 500;
-  color: #64748b;
-  background: #f1f5f9;
-  border: 1px solid #e2e8f0;
-  padding: 3px 10px;
-  border-radius: 100px;
-}
+.help { padding: 0 24px 88px; }
 
-.pcard-btn {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  margin-top: 4px;
-  padding: 11px 16px;
-  border-radius: 10px;
-  background: #003D79;
-  color: #ffffff;
-  font-size: 13px;
-  font-weight: 600;
-  transition: background 0.15s;
-}
-
-.pcard:hover .pcard-btn {
-  background: #002b57;
-}
-
-/* ── Contact ───────────────────────────────────────────────────── */
-.portal-contact {
-  background: linear-gradient(135deg, #002244 0%, #003D79 100%);
-  padding: 36px 24px;
-}
-
-.portal-contact-inner {
-  max-width: 880px;
+.help__inner {
+  max-width: 1060px;
   margin: 0 auto;
   display: flex;
   align-items: center;
-  gap: 20px;
-  flex-wrap: wrap;
+  gap: 18px;
+  padding: 20px 24px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg);
+  background: linear-gradient(120deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.02));
+  box-shadow: var(--sh-2);
 }
 
-.portal-contact-icon {
-  font-size: 40px;
+.help__icon {
+  display: grid;
+  place-items: center;
   flex-shrink: 0;
-  filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+  width: 44px;
+  height: 44px;
+  border-radius: var(--r-md);
+  background: rgba(37, 99, 235, 0.15);
+  border: 1px solid rgba(76, 141, 255, 0.24);
+  color: var(--brand-300);
 }
 
-.portal-contact-info {
-  flex: 1;
+.help__text {
   display: flex;
   flex-direction: column;
-  gap: 3px;
-  min-width: 180px;
+  flex: 1;
+  min-width: 0;
 }
 
-.portal-contact-label {
+.help__label {
   font-size: 11px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.5);
-  text-transform: uppercase;
-  letter-spacing: 0.09em;
-}
-
-.portal-contact-name {
-  font-size: 17px;
   font-weight: 700;
-  color: #ffffff;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-mute);
 }
 
-.portal-contact-role {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.55);
+.help__name {
+  font-family: var(--font-display), sans-serif;
+  font-size: 16px;
+  font-weight: 650;
+  letter-spacing: -0.015em;
+  color: var(--text);
 }
 
-.portal-wa-btn {
-  display: flex;
+.help__btn {
+  display: inline-flex;
   align-items: center;
-  justify-content: center;
-  background: #25d366;
-  color: #ffffff;
-  border: none;
-  border-radius: 50%;
-  width: 52px;
-  height: 52px;
-  cursor: pointer;
-  transition: background 0.15s, transform 0.15s, box-shadow 0.15s;
+  gap: 9px;
   flex-shrink: 0;
-  box-shadow: 0 4px 16px rgba(37, 211, 102, 0.35);
+  padding: 12px 20px;
+  border: none;
+  border-radius: var(--r-pill);
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  color: #fff;
   font-family: inherit;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 8px 22px -8px rgba(37, 211, 102, 0.6);
+  transition: transform 0.28s var(--ease), box-shadow 0.28s var(--ease),
+              filter 0.28s var(--ease);
 }
 
-.portal-wa-btn:hover {
-  background: #1ebe57;
+.help__btn:hover {
   transform: translateY(-2px);
-  box-shadow: 0 6px 20px rgba(37, 211, 102, 0.4);
+  filter: brightness(1.07);
+  box-shadow: 0 14px 32px -10px rgba(37, 211, 102, 0.72);
 }
 
-/* ── Footer ────────────────────────────────────────────────────── */
-.portal-footer {
-  background: #001128;
-  padding: 44px 24px;
-  border-top: 1px solid rgba(255, 255, 255, 0.06);
+/* ── Footer ──────────────────────────────────────────────────────────────── */
+
+.foot {
+  margin-top: auto;
+  border-top: 1px solid var(--line);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.02), transparent);
 }
 
-.portal-footer-inner {
-  max-width: 880px;
+.foot__inner {
+  max-width: 1060px;
   margin: 0 auto;
+  padding: 44px 24px 40px;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
   gap: 40px;
-  align-items: start;
+  align-items: center;
 }
 
-.portal-footer-col {
+.foot__col {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+
+.foot__col--end {
+  justify-content: flex-end;
+  text-align: right;
+  flex-direction: row-reverse;
+}
+
+.foot__ico {
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--r-sm);
+  border: 1px solid var(--line-strong);
+  background: rgba(255, 255, 255, 0.04);
+  color: var(--brand-300);
+}
+
+.foot__t {
+  font-size: 13.5px;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  color: var(--text);
+  margin-bottom: 3px;
+}
+
+.foot__d {
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--text-mute);
+  max-width: 30ch;
+}
+
+.foot__mid {
   display: flex;
   flex-direction: column;
+  align-items: center;
+  text-align: center;
   gap: 8px;
 }
 
-.portal-footer-col-mid {
-  align-items: center;
-  text-align: center;
-  gap: 10px;
-}
-
-.portal-footer-logo {
-  height: 34px;
+.foot__logo {
+  height: 44px;
   width: auto;
-  border-radius: 5px;
-  display: block;
+  opacity: 0.92;
 }
 
-.portal-footer-col-icon {
-  font-size: 26px;
-  margin-bottom: 2px;
-}
-
-.portal-footer-col-title {
-  font-size: 13px;
-  font-weight: 700;
-  color: rgba(255, 255, 255, 0.85);
-}
-
-.portal-footer-col-desc {
-  font-size: 12px;
-  color: rgba(255, 255, 255, 0.38);
-  line-height: 1.6;
-}
-
-.portal-footer-copy {
-  font-size: 13px;
+.foot__copy {
+  font-size: 12.5px;
   font-weight: 600;
-  color: rgba(255, 255, 255, 0.65);
+  color: var(--text-dim);
 }
 
-.portal-footer-unit {
-  font-size: 11px;
-  color: rgba(255, 255, 255, 0.35);
-  text-align: center;
-  line-height: 1.7;
+.foot__unit {
+  font-size: 11.5px;
+  line-height: 1.6;
+  color: var(--text-mute);
 }
 
-/* ── Modal ─────────────────────────────────────────────────────── */
-.portal-modal-bg {
+/* ── Modal ───────────────────────────────────────────────────────────────── */
+
+@keyframes modalIn {
+  from { opacity: 0; transform: translate3d(0, 14px, 0) scale(0.98); }
+  to   { opacity: 1; transform: translate3d(0, 0, 0) scale(1); }
+}
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+
+.modal__bg {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.65);
-  backdrop-filter: blur(5px);
-  -webkit-backdrop-filter: blur(5px);
-  z-index: 1000;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 24px;
-  animation: fadeIn 0.15s ease;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgba(2, 6, 14, 0.74);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+  animation: fadeIn 0.24s var(--ease) both;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
-}
-
-.portal-modal {
-  background: #ffffff;
-  border-radius: 18px;
+.modal {
   width: 100%;
   max-width: 460px;
-  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.35);
-  animation: slideUp 0.2s ease;
+  max-height: calc(100vh - 40px);
+  overflow-y: auto;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-lg);
+  background: linear-gradient(160deg, var(--bg-lift), var(--bg-soft));
+  box-shadow: var(--sh-3);
+  animation: modalIn 0.34s var(--ease) both;
 }
 
-@keyframes slideUp {
-  from { transform: translateY(20px); opacity: 0; }
-  to   { transform: translateY(0);    opacity: 1; }
-}
-
-.portal-modal-head {
+.modal__head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  padding: 24px 24px 18px;
-  border-bottom: 1px solid #f1f5f9;
+  gap: 16px;
+  padding: 22px 22px 16px;
+  border-bottom: 1px solid var(--line);
 }
 
-.portal-modal-head h3 {
-  margin: 0 0 4px;
+.modal__head h3 {
+  font-family: var(--font-display), sans-serif;
   font-size: 17px;
   font-weight: 700;
-  color: #0f172a;
+  letter-spacing: -0.02em;
+  margin: 0 0 4px;
+  color: var(--text);
 }
 
-.portal-modal-head p {
+.modal__head p {
   margin: 0;
-  font-size: 13px;
-  color: #64748b;
+  font-size: 12.5px;
+  color: var(--text-mute);
 }
 
-.portal-modal-x {
-  background: #f1f5f9;
-  border: none;
-  font-size: 14px;
-  color: #64748b;
-  cursor: pointer;
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.15s, color 0.15s;
+.modal__x {
+  display: grid;
+  place-items: center;
   flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  border: 1px solid var(--line);
+  border-radius: var(--r-sm);
+  background: transparent;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: background 0.22s var(--ease), color 0.22s var(--ease);
 }
 
-.portal-modal-x:hover {
-  background: #e2e8f0;
-  color: #0f172a;
+.modal__x:hover {
+  background: rgba(255, 255, 255, 0.07);
+  color: var(--text);
 }
 
-.portal-modal-body {
-  padding: 20px 24px;
+.modal__body {
   display: flex;
   flex-direction: column;
-  gap: 14px;
+  gap: 16px;
+  padding: 22px;
 }
 
-.portal-modal-body label {
+.modal__body label {
   display: flex;
   flex-direction: column;
-  gap: 6px;
-  font-size: 13px;
+  gap: 7px;
+  font-size: 12.5px;
   font-weight: 600;
-  color: #374151;
+  color: var(--text-dim);
 }
 
-.portal-modal-body input,
-.portal-modal-body textarea {
-  padding: 10px 14px;
-  border: 1px solid #e2e8f0;
-  border-radius: 9px;
-  font-size: 14px;
-  color: #0f172a;
-  outline: none;
-  transition: border-color 0.15s, box-shadow 0.15s;
+.modal__body input,
+.modal__body textarea {
+  width: 100%;
+  padding: 11px 14px;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-sm);
+  background: rgba(0, 0, 0, 0.28);
+  color: var(--text);
   font-family: inherit;
+  font-size: 14px;
+  font-weight: 400;
+  outline: none;
   resize: vertical;
-  background: #fafafa;
+  transition: border-color 0.22s var(--ease), box-shadow 0.22s var(--ease);
 }
 
-.portal-modal-body input:focus,
-.portal-modal-body textarea:focus {
-  border-color: #003D79;
-  box-shadow: 0 0 0 3px rgba(0, 61, 121, 0.1);
-  background: #ffffff;
+.modal__body input::placeholder,
+.modal__body textarea::placeholder { color: #6B7C97; }
+
+.modal__body input:focus,
+.modal__body textarea:focus {
+  border-color: var(--brand-500);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.22);
 }
 
-.portal-modal-foot {
+.modal__foot {
   display: flex;
   gap: 10px;
-  padding: 16px 24px 24px;
-  justify-content: flex-end;
+  padding: 0 22px 22px;
 }
 
-.portal-modal-cancel {
-  background: #f1f5f9;
-  border: none;
-  border-radius: 9px;
-  padding: 10px 20px;
+.modal__cancel,
+.modal__send {
+  flex: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: var(--r-sm);
+  font-family: inherit;
   font-size: 14px;
   font-weight: 600;
-  color: #64748b;
   cursor: pointer;
-  transition: background 0.15s;
-  font-family: inherit;
+  transition: filter 0.22s var(--ease), background 0.22s var(--ease);
 }
 
-.portal-modal-cancel:hover {
-  background: #e2e8f0;
+.modal__cancel {
+  border: 1px solid var(--line-strong);
+  background: transparent;
+  color: var(--text-dim);
 }
+.modal__cancel:hover { background: rgba(255, 255, 255, 0.06); }
 
-.portal-modal-send {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  background: #25d366;
+.modal__send {
   border: none;
-  border-radius: 9px;
-  padding: 10px 20px;
-  font-size: 14px;
-  font-weight: 700;
-  color: #ffffff;
-  cursor: pointer;
-  transition: background 0.15s, transform 0.1s;
-  font-family: inherit;
+  background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+  color: #fff;
+  box-shadow: 0 8px 20px -8px rgba(37, 211, 102, 0.55);
 }
-
-.portal-modal-send:hover:not(:disabled) {
-  background: #1ebe57;
-  transform: translateY(-1px);
-}
-
-.portal-modal-send:disabled {
-  background: #cbd5e1;
-  color: #94a3b8;
+.modal__send:hover:not(:disabled) { filter: brightness(1.08); }
+.modal__send:disabled {
+  opacity: 0.42;
   cursor: not-allowed;
+  box-shadow: none;
 }
 
-/* ── Responsive ────────────────────────────────────────────────── */
-@media (max-width: 640px) {
-  .portal-nav-clock {
-    display: none;
-  }
+/* ── Fokus keyboard: harus terlihat jelas di semua kontrol ───────────────── */
 
-  .portal-hero-content {
-    padding: 60px 20px 90px;
-  }
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+textarea:focus-visible {
+  outline: 2px solid var(--brand-400);
+  outline-offset: 3px;
+  border-radius: var(--r-sm);
+}
 
-  .portal-contact-inner {
-    flex-direction: column;
-    text-align: center;
-    align-items: center;
-  }
+/* ═══════════════════════════════════════════════════════════════════════════
+   RESPONSIF — desktop dulu, lalu diturunkan. Yang berubah hanya kolom & ritme
+   spasi; hierarki dan warna tetap sama di semua ukuran.
+   ═══════════════════════════════════════════════════════════════════════════ */
 
-  .portal-contact-info {
-    align-items: center;
-  }
-
-  .portal-footer-inner {
+/* Tablet (<=900px): panel jadi satu kolom, garis pemisah pindah ke atas. */
+@media (max-width: 900px) {
+  .panel {
     grid-template-columns: 1fr;
-    gap: 28px;
+    gap: 32px;
+    padding: 32px;
   }
 
-  .portal-footer-col {
-    align-items: center;
+  .panel__right {
+    border-left: none;
+    border-top: 1px solid var(--line);
+    padding-left: 0;
+    padding-top: 28px;
+  }
+
+  .panel__desc { max-width: none; }
+
+  .hero { min-height: 68vh; padding: 112px 24px 148px; }
+
+  .foot__inner {
+    grid-template-columns: 1fr;
+    gap: 32px;
     text-align: center;
   }
+
+  /* Di satu kolom, ikon di samping teks jadi canggung — pusatkan saja. */
+  .foot__col,
+  .foot__col--end {
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    gap: 10px;
+  }
+
+  .foot__d { max-width: 38ch; }
+  .foot__mid { order: -1; }   /* logo di tengah dulu, baru dua kolom info */
+}
+
+/* HP (<=640px) */
+@media (max-width: 640px) {
+  .nav__inner { padding: 12px 16px; gap: 10px; }
+  .nav__area { font-size: 13.5px; }
+  .nav__logo { height: 32px; }
+
+  /* Jam lengkap terlalu panjang di 375px dan mendorong brand keluar. Dibuat
+     mengecil & boleh terpotong elipsis — bukan memaksa navbar melebar. */
+  .nav__clock {
+    font-size: 10.5px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    text-align: right;
+  }
+
+  .hero {
+    /* 0, bukan `auto`: Firefox tidak mendukung min-height:auto pada blok biasa.
+       Efeknya sama — mencabut lantai 78vh supaya tinggi hero mengikuti isinya. */
+    min-height: 0;
+    padding: 104px 20px 132px;
+  }
+
+  .hero__eyebrow {
+    font-size: 10px;
+    letter-spacing: 0.11em;
+    padding: 5px 12px 5px 9px;
+  }
+
+  .stage {
+    margin-top: -96px;
+    padding: 0 16px 64px;
+  }
+
+  .panel {
+    gap: 26px;
+    padding: 24px 20px;
+    border-radius: var(--r-lg);
+  }
+
+  /* 2 kolom tetap dipertahankan di 375px: 4 tile jadi 2x2 yang padat dan masih
+     terbaca. Satu kolom hanya membuat panel memanjang tanpa alasan. */
+  .feats { gap: 8px; }
+  .feat { padding: 12px 10px; gap: 9px; }
+  .feat__icon { width: 30px; height: 30px; }
+  .feat__title { font-size: 12.5px; }
+  .feat__desc { font-size: 10.5px; }
+
+  /* Tombol utama melebar penuh — target sentuh jelas, tak perlu dibidik. */
+  .cta {
+    width: 100%;
+    justify-content: center;
+    padding: 15px 20px;
+  }
+
+  .help { padding: 0 16px 64px; }
+
+  .help__inner {
+    flex-wrap: wrap;
+    gap: 14px;
+    padding: 18px;
+  }
+
+  .help__btn {
+    width: 100%;
+    justify-content: center;
+    min-height: 46px;
+  }
+
+  .foot__inner { padding: 36px 20px 32px; }
+  .modal__foot { flex-direction: column-reverse; }
+}
+
+/* HP sangat sempit (<=360px): tile fitur bertumpuk agar teks tidak terpotong. */
+@media (max-width: 360px) {
+  .feats { grid-template-columns: 1fr; }
+}
+
+/* ── Hormati preferensi gerak minimal ────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+  /* Ken Burns dimatikan total, bukan sekadar dipercepat. */
+  .hero__img { transform: none !important; }
 }
