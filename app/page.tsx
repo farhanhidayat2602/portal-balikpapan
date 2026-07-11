@@ -164,8 +164,11 @@ export default function Home() {
             <div className="panel__right">
               <p className="panel__label">Yang bisa diakses</p>
               <div className="feats">
-                {FEATURES.map(({ icon: Icon, title, desc }) => (
-                  <div className="feat" key={title}>
+                {FEATURES.map(({ icon: Icon, title, desc }, i) => (
+                  /* --i dipakai CSS untuk menghitung jeda stagger tiap tile.
+                     Lewat custom property, bukan animation-delay per nth-child,
+                     supaya rumusnya tetap benar kalau daftar FEATURES berubah. */
+                  <div className="feat" key={title} style={{ '--i': i } as React.CSSProperties}>
                     <span className="feat__icon" aria-hidden="true"><Icon /></span>
                     <div className="feat__text">
                       <span className="feat__title">{title}</span>
@@ -180,7 +183,7 @@ export default function Home() {
 
         {/* ── Bantuan ────────────────────────────────────────── */}
         <section className="help">
-          <div className="help__inner">
+          <div className="help__inner on-scroll">
             <span className="help__icon" aria-hidden="true"><IconHeadset /></span>
             <div className="help__text">
               <span className="help__label">Butuh bantuan?</span>
@@ -196,7 +199,7 @@ export default function Home() {
 
       {/* ── Footer ───────────────────────────────────────────── */}
       <footer className="foot">
-        <div className="foot__inner">
+        <div className="foot__inner on-scroll">
           <div className="foot__col">
             <span className="foot__ico" aria-hidden="true"><IconShield /></span>
             <div>
