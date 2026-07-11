@@ -133,32 +133,6 @@ body {
 .reveal--2 { animation-delay: 0.28s; }
 .reveal--3 { animation-delay: 0.44s; }
 
-/* Reveal saat elemen MASUK viewport — untuk bagian di bawah lipatan (Bantuan,
-   Footer). Menganimasikannya saat load itu percuma: gerakannya terjadi ketika
-   pengguna belum melihatnya.
-
-   Sengaja TANPA JavaScript. Pola IntersectionObserver yang lazim menyembunyikan
-   elemen lewat CSS (opacity:0) lalu menampilkannya dari JS — kalau skrip gagal
-   dimuat, bagian itu HILANG PERMANEN. Risiko yang tak sepadan untuk sekadar
-   hiasan.
-
-   Baris di bawah ini adalah fallback yang selalu jalan (Safari/Firefox):
-   elemen tetap muncul, hanya tidak terikat scroll. Jadi konten tidak pernah
-   bisa tersangkut tak terlihat. */
-.on-scroll { animation: rise 0.8s var(--ease) 0.5s both; }
-
-/* Browser yang mendukung scroll-driven animation (Chrome/Edge) mendapat versi
-   yang benar: progresnya mengikuti posisi scroll, bukan waktu.
-   animation-timeline HARUS ditulis SETELAH shorthand `animation` — shorthand
-   me-reset timeline ke `auto`, jadi kalau urutannya terbalik efeknya mati. */
-@supports (animation-timeline: view()) {
-  .on-scroll {
-    animation: rise linear both;
-    animation-timeline: view();
-    animation-range: entry 10% cover 34%;
-  }
-}
-
 /* ── Navbar ──────────────────────────────────────────────────────────────── */
 
 .nav {
@@ -542,13 +516,6 @@ body {
   background: rgba(255, 255, 255, 0.028);
   transition: border-color 0.28s var(--ease), background 0.28s var(--ease),
               transform 0.28s var(--ease);
-  /* Tile menyusul setelah panel mendarat (0.44s + 0.9s), lalu beriring 60ms
-     satu sama lain. Jeda antar-tile sengaja jauh lebih rapat daripada stagger
-     hero: ini rombongan sejenis, bukan urutan hierarki — kalau direnggangkan
-     seperti hero, ia terbaca lambat dan bertele-tele.
-     --i diisi dari React, jadi rumus ini tetap benar berapa pun jumlah tile. */
-  animation: rise 0.7s var(--ease) both;
-  animation-delay: calc(0.6s + var(--i, 0) * 0.06s);
 }
 
 .feat:hover {
@@ -1098,16 +1065,4 @@ textarea:focus-visible {
      ter-center lewat transform, jadi transform-nya HARUS dipertahankan —
      kalau ikut di-none, cahayanya melenceng dari kata. */
   .hero__accent::before { opacity: 0.8; }
-
-  /* Reveal saat scroll & stagger tile: dimatikan, dan elemennya dipaksa terlihat.
-     Ini WAJIB eksplisit. Aturan umum di atas (durasi 0.001ms) tidak berpengaruh
-     pada .on-scroll di browser yang memakai animation-timeline: view() —
-     progresnya diukur dari posisi scroll, bukan waktu, jadi memangkas durasi
-     tidak melakukan apa pun dan elemen akan tersangkut di opacity 0. */
-  .on-scroll,
-  .feat {
-    animation: none !important;
-    opacity: 1 !important;
-    transform: none !important;
-  }
 }
