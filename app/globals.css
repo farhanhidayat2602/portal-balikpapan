@@ -89,10 +89,35 @@ body {
   to   { opacity: 1; transform: translate3d(0, 0, 0); }
 }
 
-/* Ken Burns: foto merayap pelan supaya hero terasa hidup, bukan gambar mati. */
+/* Ken Burns — foto merayap pelan supaya hero hidup, bukan gambar mati.
+   `alternate` (bukan sekali jalan): foto BERNAPAS masuk-keluar. Kalau loop biasa,
+   di akhir siklus ia MELOMPAT balik ke skala awal — patahan yang langsung
+   ketahuan mata. Dengan alternate, arahnya berbalik mulus, tak ada sambungan.
+   Skala minimum sengaja 1.04, bukan 1: pan translate butuh margin luber. Di
+   skala pas 1.0 tepi foto akan tersingkap saat digeser. */
 @keyframes kenburns {
-  from { transform: scale(1.12); }
-  to   { transform: scale(1); }
+  from { transform: scale(1.04) translate3d(0, 0, 0); }
+  to   { transform: scale(1.13) translate3d(-1.2%, -1.5%, 0); }
+}
+
+/* Aksen "Balikpapan" — cahaya di belakang kata, bukan kilau di atas huruf.
+   Hanya opacity + scale, jadi tetap murni composite. */
+@keyframes accentBreathe {
+  0%, 100% { opacity: 0.55; transform: translate(-50%, -50%) scale(0.94); }
+  50%      { opacity: 1;    transform: translate(-50%, -50%) scale(1.06); }
+}
+
+/* Overlay senja — semburat biru di balik judul ikut bergerak sangat pelan,
+   supaya suasananya tidak beku. Amplitudonya kecil; niatnya nyaris tak sadar. */
+@keyframes glowDrift {
+  0%, 100% { opacity: 0.85; transform: translate(-50%, -50%) scale(1) translateX(0); }
+  50%      { opacity: 1;    transform: translate(-50%, -50%) scale(1.12) translateX(2%); }
+}
+
+/* Varian Ken Burns untuk HP (dipakai di media query <=640px). */
+@keyframes kenburnsSoft {
+  from { transform: scale(1.02); }
+  to   { transform: scale(1.06); }
 }
 
 @keyframes pulse {
@@ -100,10 +125,13 @@ body {
   50%      { opacity: 0.45; transform: scale(0.82); }
 }
 
-.reveal { animation: rise 0.8s var(--ease) both; }
-.reveal--1 { animation-delay: 0.09s; }
-.reveal--2 { animation-delay: 0.18s; }
-.reveal--3 { animation-delay: 0.28s; }
+/* Stagger ~140ms antar elemen: badge -> judul -> subjudul -> panel.
+   Cukup renggang untuk terbaca sebagai urutan, cukup rapat agar tak terasa
+   lambat menunggu. */
+.reveal { animation: rise 0.9s var(--ease) both; }
+.reveal--1 { animation-delay: 0.14s; }
+.reveal--2 { animation-delay: 0.28s; }
+.reveal--3 { animation-delay: 0.44s; }
 
 /* ── Navbar ──────────────────────────────────────────────────────────────── */
 
@@ -188,7 +216,16 @@ body {
 .hero__img {
   object-fit: cover;
   object-position: center 32%;
-  animation: kenburns 24s var(--ease) both;
+  /* 28s x alternate = satu tarikan napas penuh ~56 detik. Sangat lambat; niatnya
+     memang nyaris tak disadari, bukan tontonan.
+     ease-in-out (bukan var(--ease) yang berakhir mendadak) supaya titik balik di
+     ujung siklus tidak terasa "berhenti lalu berangkat lagi". */
+  animation: kenburns 28s cubic-bezier(0.45, 0, 0.55, 1) infinite alternate both;
+  /* Naikkan ke layer sendiri sekali di awal. Tanpa ini, browser bisa mem-promote
+     dan menurunkan layer berulang kali sepanjang animasi. */
+  will-change: transform;
+  transform-origin: center 38%;
+  backface-visibility: hidden;   /* cegah teks/foto jadi sedikit buram saat di-scale */
 }
 
 /* Scrim berlapis: pekat di tepi atas & bawah supaya navbar dan panel punya
@@ -223,6 +260,10 @@ body {
   background: radial-gradient(closest-side, rgba(37, 99, 235, 0.3), transparent 78%);
   filter: blur(28px);
   pointer-events: none;
+  /* 18s bolak-balik — sengaja TIDAK kelipatan durasi Ken Burns (28s), supaya
+     keduanya tidak pernah jatuh serempak dan gerakannya tidak terbaca berpola. */
+  animation: glowDrift 18s ease-in-out infinite;
+  will-change: transform, opacity;
 }
 
 .hero__inner {
@@ -271,10 +312,36 @@ body {
 
 /* Gradient hanya pada satu kata → mata langsung tahu ini judulnya. */
 .hero__accent {
+  position: relative;
+  display: inline-block;
   background: linear-gradient(135deg, #9FC4FF 0%, var(--brand-400) 45%, #A8D0FF 100%);
   -webkit-background-clip: text;
   background-clip: text;
   color: transparent;
+}
+
+/* Sentuhan khusus untuk titik fokus: cahaya yang BERNAPAS di belakang kata.
+   Bukan kilau menyapu di atas huruf — efek itu menuntut animasi
+   background-position, yang memicu Paint tiap frame dan melanggar aturan
+   "transform & opacity saja". Ini hanya opacity + scale, jadi murni composite,
+   dan hasilnya lebih tenang (tidak norak). Ditaruh di z-index -1 supaya cahaya
+   berada DI BELAKANG huruf dan ketajaman teks tidak berkurang sedikit pun. */
+.hero__accent::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: 50%;
+  left: 50%;
+  width: 118%;
+  height: 150%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(closest-side, rgba(76, 141, 255, 0.42), transparent 72%);
+  filter: blur(22px);
+  pointer-events: none;
+  /* Mulai setelah judul selesai masuk (0.14s + 0.9s), agar tak menabrak
+     entrance animation. 7s bolak-balik — lambat dan tenang. */
+  animation: accentBreathe 7s ease-in-out 1.2s infinite;
+  will-change: transform, opacity;
 }
 
 .hero__sub {
@@ -892,6 +959,22 @@ textarea:focus-visible {
     padding: 5px 12px 5px 9px;
   }
 
+  /* Ken Burns diperingan di HP. Foto full-bleed yang terus di-scale adalah layer
+     GPU sebesar layar — di perangkat mobile itu beban nyata untuk baterai, dan
+     di layar sekecil ini gerakannya toh hampir tak terlihat. Jadi amplitudonya
+     dipangkas (1.13 -> 1.06), pan dihapus, dan durasinya dipanjangkan. */
+  .hero__img {
+    animation-name: kenburnsSoft;
+    animation-duration: 40s;
+  }
+
+  /* Semburat overlay: cukup diam di HP. Elemen blur besar yang di-scale terus
+     menerus tidak sepadan dengan hasilnya di layar sempit. */
+  .hero__glow {
+    animation: none;
+    will-change: auto;
+  }
+
   .stage {
     margin-top: -96px;
     padding: 0 16px 64px;
@@ -958,6 +1041,28 @@ textarea:focus-visible {
     transition-duration: 0.001ms !important;
     scroll-behavior: auto !important;
   }
-  /* Ken Burns dimatikan total, bukan sekadar dipercepat. */
+
+  /* Ketiga loop tak berhingga (Ken Burns, glowDrift, accentBreathe) dimatikan
+     TOTAL — bukan sekadar dipercepat. Aturan umum di atas hanya memangkas durasi
+     jadi 0.001ms; animasinya tetap "berjalan" dan melompat ke keyframe akhir.
+     Untuk gerak yang terus-menerus, itu belum cukup: pengguna yang menyalakan
+     hemat gerak biasanya sensitif terhadap gerakan (mis. vertigo/migrain), dan
+     satu lompatan pun tidak diinginkan. `animation: none` menghentikannya di
+     keadaan dasar. */
+  .hero__img,
+  .hero__glow,
+  .hero__accent::before,
+  .hero__pulse {
+    animation: none !important;
+    will-change: auto !important;
+  }
+
+  /* Kembalikan ke skala natural — tanpa ini foto akan terkunci di scale(1.04)
+     sisa keadaan awal keyframe. */
   .hero__img { transform: none !important; }
+
+  /* Cahaya di balik "Balikpapan" tetap ada, hanya tidak bernapas. Elemennya
+     ter-center lewat transform, jadi transform-nya HARUS dipertahankan —
+     kalau ikut di-none, cahayanya melenceng dari kata. */
+  .hero__accent::before { opacity: 0.8; }
 }
