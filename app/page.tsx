@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react'
 import Image from 'next/image'
 
 const PELAPORAN_URL =
-  process.env.NEXT_PUBLIC_PELAPORAN_URL || 'https://pelaporanakuisisiareabalikpapan.web.id/login'
+  process.env.NEXT_PUBLIC_PELAPORAN_URL || 'https://laporanakuisisiharianarea.web.id/login'
 const WA_NUMBER = '628988887761'
 
 // Pilar aplikasi — dipetakan satu-satu dari grup menu yang BENAR-BENAR ada di
